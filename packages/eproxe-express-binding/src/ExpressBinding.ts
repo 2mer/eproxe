@@ -3,7 +3,10 @@ import { decodeJsonUriComponent, getMethodFromName } from 'eproxe-http';
 
 function generateRoutesFromProcedure(router: Router, procedure: any, path: string[] = []) {
 
-	if (typeof procedure === 'function') {
+	const pType = typeof procedure;
+	if (pType === 'string') return;
+	if (pType === 'number') return;
+	if (pType === 'function') {
 
 		const head = path[path.length - 1];
 		const method = getMethodFromName(head);
