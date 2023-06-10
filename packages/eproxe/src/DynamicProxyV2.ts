@@ -66,3 +66,23 @@ export class ProxyExtension<TProxyExtenderOrType> {
 		return extendProxy<TProxy, TProxyExtenderOrType>(proxy, this.handlers);
 	}
 }
+
+
+const mockData = { calls: [] }
+const h = ({ args = [], calls = [], data = {}, next }) => {
+	const head = calls[calls.length - 1];
+
+	if (head === 'middleware') {
+		const middlewares = data?.middleware ?? [];
+		return next({
+			calls: calls.slice(0, -1),
+			middleware: [...middlewares, ...args]
+		})
+	}
+
+	if (head === 'use') {
+		return useSWR([],)
+	}
+
+	return next();
+}

@@ -43,7 +43,7 @@ function generateRoutesFromProcedure(router: Router, procedure: any, path: strin
 
 }
 
-export default function toExpress<TProcedures extends {}>(procedures: TProcedures) {
+export default function toExpress<TProcedures extends {}>(procedures: TProcedures): Router {
 	const router = Router();
 
 	generateRoutesFromProcedure(router, procedures);

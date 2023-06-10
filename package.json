@@ -1,12 +1,21 @@
 {
-  "name": "eproxe",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+	"name": "eproxe-workspace",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"build": "turbo build",
+		"test": "turbo test"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/jest": "^29.5.2",
+		"jest": "^29.5.0",
+		"lerna": "^7.0.0",
+		"ts-jest": "^29.1.0",
+		"turbo": "^1.10.3",
+		"typescript": "^5.1.3"
+	}
 }

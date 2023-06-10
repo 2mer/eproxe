@@ -39,10 +39,10 @@ export default class AxiosProxyExtension extends ProxyExtension<ExtendLeaves<Pro
 						return axiosInstance.delete(route, { params: { args: encodeJsonUriComponent(args) } })
 					}
 					if (method === 'post') {
-						return axiosInstance.post(route, args)
+						return axiosInstance.post(route, { args })
 					}
 					if (method === 'put') {
-						return axiosInstance.put(route, args)
+						return axiosInstance.put(route, { args })
 					}
 				}
 
