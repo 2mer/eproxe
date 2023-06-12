@@ -1,29 +1,24 @@
 import { Call, Fn } from "hotscript";
+import { DynamicProxyHandlers, DynamicProxyHandlersClass } from "./DynamicProxyHandlers";
 
 const INTERNALS = Symbol('INTERNALS');
 
 export type ProxyBase = { [INTERNALS]: any };
-export type ProxyProps = { handlers: ProxyHandlers, data: any, parent: any }
-export type ProxyNext = (internals?: Partial<ProxyProps>) => any;
-export type ProxyInternals = ProxyProps & { next: ProxyNext };
-export type ProxyHandlers = {
-	get?: (prop: string | symbol, internals: ProxyInternals) => any;
-	apply?: (args: any[], internals: ProxyInternals) => any;
-};
+export type ProxyProps = { handlers?: DynamicProxyHandlers, data?: any }
 
-export const DynamicProxy = ({ handlers, data, parent }: ProxyProps = { handlers: {}, data: {}, parent: undefined }) => {
+const coreHandler = new DynamicProxyHandlers();
+
+export const DynamicProxy = ({ handlers = coreHandler, data = {} }: ProxyProps = {}) => {
 	const target = () => { };
-
-	const next = (props?: Partial<ProxyProps>) => {
-		return DynamicProxy({ handlers, data, parent: proxy, ...props });
-	}
 
 	const internals = {
 		handlers,
 		data,
-		parent,
-		next,
 	};
+
+	function push(data: any) {
+		return DynamicProxy({ data, handlers });
+	}
 
 	const proxy: any = new Proxy(target, {
 		get(target, p, receiver) {
@@ -31,15 +26,11 @@ export const DynamicProxy = ({ handlers, data, parent }: ProxyProps = { handlers
 				return internals;
 			}
 
-			const handler = handlers.get ?? (() => next());
-
-			return handler(p, internals);
+			return handlers.get(p as string, data, push);
 		},
 
 		apply(target, thisArg, argArray) {
-			const handler = handlers.apply;
-
-			return handler && handler(argArray, internals);
+			return handlers.apply(argArray, data, push);
 		},
 	});
 
@@ -49,20 +40,17 @@ export const DynamicProxy = ({ handlers, data, parent }: ProxyProps = { handlers
 }
 
 
-const extendProxy = <TProx extends ProxyBase, TProxyExtenderOrType>(prox: TProx, handlers: ProxyHandlers) => {
-	const internals: ProxyInternals = prox[INTERNALS];
+export abstract class ProxyExtension<TProxyExtenderOrType> {
 
-	return DynamicProxy({ ...internals, handlers }) as TProxyExtenderOrType extends Fn ? Call<TProxyExtenderOrType, TProx> : TProxyExtenderOrType & ProxyBase;
-}
-
-export class ProxyExtension<TProxyExtenderOrType> {
-	handlers: ProxyHandlers;
-
-	constructor(handlers: ProxyHandlers) {
-		this.handlers = handlers;
-	}
+	abstract extendHandlers<THandlers extends DynamicProxyHandlersClass>(PrevHandlers: THandlers): DynamicProxyHandlersClass;
 
 	extend<TProxy extends ProxyBase>(proxy: TProxy) {
-		return extendProxy<TProxy, TProxyExtenderOrType>(proxy, this.handlers);
+		const { data, handlers } = proxy[INTERNALS];
+
+		const HandlersClass = handlers.constructor
+		const ExtendedHandlers = this.extendHandlers(HandlersClass);
+		const newHandlers = new ExtendedHandlers();
+
+		return DynamicProxy({ data, handlers: newHandlers }) as TProxyExtenderOrType extends Fn ? Call<TProxyExtenderOrType, TProxy> : TProxyExtenderOrType & ProxyBase;
 	}
 }

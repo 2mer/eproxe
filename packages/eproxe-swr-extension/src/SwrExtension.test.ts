@@ -6,5 +6,10 @@ test('', () => {
 	const ext = new SwrProxyExtension();
 
 	const swrProx = ext.extend(prox);
-	// expect(swrProx.a.use).toBeInstanceOf(Function);
+	try {
+		// @ts-expect-error
+		swrProx.a.use.use
+	} catch (err) { }
+
+	expect(swrProx.a.use).toBeInstanceOf(Function);
 })

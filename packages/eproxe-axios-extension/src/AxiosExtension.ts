@@ -2,6 +2,7 @@ import { Fn } from "hotscript";
 import { Axios } from "axios";
 import { ProxyExtension, ExtendLeaves } from "eproxe";
 import { encodeJsonUriComponent, getMethodFromName } from "eproxe-http";
+import { DynamicProxyHandlersClass, DynamicProxyPushFunction } from "eproxe/dist/DynamicProxyHandler";
 
 interface Promisify extends Fn {
 	return: this['arg0'] extends (...args: any) => infer TRet ? (
@@ -18,18 +19,22 @@ interface Promisify extends Fn {
 
 
 export default class AxiosProxyExtension extends ProxyExtension<ExtendLeaves<Promisify>> {
+	axiosInstance: Axios;
+
 	constructor(axiosInstance: Axios) {
-		super({
-			get(prop, internals) {
-				const route = internals.data.path.join('/');
+		super();
+		this.axiosInstance = axiosInstance;
+	}
 
-				return internals.next({ data: { ...internals.data, route } });
-			},
+	extendHandlers<THandlers extends DynamicProxyHandlersClass>(PrevHandlers: THandlers): DynamicProxyHandlersClass {
+		const axiosInstance = this.axiosInstance;
 
-
-			apply(args, internals) {
-				const { route, head } = internals.data;
+		return class AxiosHandlers extends PrevHandlers {
+			apply(args: any[], data: any, push: DynamicProxyPushFunction): any {
+				const { path } = data;
+				const head = path[path.length - 1];
 				const method = getMethodFromName(head);
+				const route = path.join('/');
 
 				const callApi = () => {
 					if (method === 'get') {
@@ -47,7 +52,9 @@ export default class AxiosProxyExtension extends ProxyExtension<ExtendLeaves<Pro
 				}
 
 				return callApi()?.then(res => res.data);
-			},
-		});
+			}
+		}
 	}
+
+
 }

@@ -1,14 +1,10 @@
 import { Fn } from "hotscript";
-import { ProxyExtension, ExtendLeaves } from "eproxe";
-import useSWR, { } from "swr";
+import { ProxyExtension, ExtendLeaves, DynamicProxyHandlersClass, DynamicProxyPushFunction } from "eproxe";
+import useSWR, { SWRResponse } from "swr";
 
-interface Promisify extends Fn {
-	return: this['arg0'] extends (...args: any) => infer TRet ? (
-		TRet extends Promise<any> ? (
-			this['arg0']
-		) : (
-			(...args: Parameters<this['arg0']>) => Promise<TRet>
-		)
+interface Hookify extends Fn {
+	return: this['arg0'] extends (...args: infer TArgs) => infer TRet ? (
+		this['arg0'] & { use: (...args: TArgs) => SWRResponse<Awaited<TRet>> }
 	) : (
 		this['arg0']
 	)
@@ -16,19 +12,20 @@ interface Promisify extends Fn {
 
 
 
-export default class SwrProxyExtension extends ProxyExtension<ExtendLeaves<Promisify>> {
-	constructor() {
-		super({
-			get(prop, internals) {
-				if (prop === 'use') {
-					const { path, } = internals.data
+export default class SwrProxyExtension extends ProxyExtension<ExtendLeaves<Hookify>> {
+	extendHandlers<THandlers extends DynamicProxyHandlersClass>(PrevHandlers: THandlers): DynamicProxyHandlersClass {
+		return class extends PrevHandlers {
+			get(key: string, data: any, push: DynamicProxyPushFunction) {
+
+				if (key === 'use') {
+					const { path } = data
 					return (...args: any) => {
-						return useSWR([...path], internals.parent(...args));
+						return useSWR([...path], super.apply(args, data, push));
 					}
 				}
 
-				return internals.next();
-			},
-		});
+				return super.get(key, data, push);
+			}
+		}
 	}
 }
