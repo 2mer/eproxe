@@ -10,8 +10,6 @@ interface Hookify extends Fn {
 	)
 }
 
-
-
 export default class SwrProxyExtension extends ProxyExtension<ExtendLeaves<Hookify>> {
 	extendHandlers<THandlers extends DynamicProxyHandlersClass>(PrevHandlers: THandlers): DynamicProxyHandlersClass {
 		return class extends PrevHandlers {

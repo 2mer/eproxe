@@ -1,4 +1,6 @@
 import { ProcedureProxy } from "./ProcedureProxy"
+import { Expect, Equal } from "@type-challenges/utils";
+
 
 describe('procedure proxy', () => {
 	test('getter type check', () => {
@@ -11,5 +13,9 @@ describe('procedure proxy', () => {
 		p.z;
 		// @ts-expect-error
 		p.x.y.z.w.a;
+
+		type tv1 = Expect<Equal<typeof p.a, 'hello'>>
+		type tv2 = Expect<Equal<typeof p.b, 'world'>>
+		type tv3 = Expect<Equal<typeof p.x.y.z.w, 'nested'>>
 	})
 })

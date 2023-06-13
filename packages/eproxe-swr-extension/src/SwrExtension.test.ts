@@ -1,15 +1,24 @@
 import { ProcedureProxy } from "eproxe";
+import { Expect, Equal } from "@type-challenges/utils";
 import SwrProxyExtension from "./SwrExtension"
+import { SWRResponse } from "swr";
 
 test('', () => {
-	const prox = ProcedureProxy<{ a: 'hey', b: 'yo' }>();
+	const prox = ProcedureProxy<{ a: 'hey', b: 'yo', doSomething: (a: 'test') => Promise<'ret'> }>();
 	const ext = new SwrProxyExtension();
 
 	const swrProx = ext.extend(prox);
+
+	// @ts-expect-error
+	swrProx.a.use
+
+	expect(swrProx.doSomething.use).toBeInstanceOf(Function);
+
 	try {
 		// @ts-expect-error
-		swrProx.a.use.use
-	} catch (err) { }
+		swrProx.doSomething.use.use
+	} catch (e) { }
 
-	expect(swrProx.a.use).toBeInstanceOf(Function);
+	type testUseType = Expect<Equal<typeof swrProx.doSomething.use, (a: 'test') => SWRResponse<'ret'>>>
+
 })

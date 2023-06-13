@@ -1,8 +1,7 @@
 import { Fn } from "hotscript";
 import { Axios } from "axios";
-import { ProxyExtension, ExtendLeaves } from "eproxe";
+import { ProxyExtension, ExtendLeaves, DynamicProxyHandlersClass, DynamicProxyPushFunction } from "eproxe";
 import { encodeJsonUriComponent, getMethodFromName } from "eproxe-http";
-import { DynamicProxyHandlersClass, DynamicProxyPushFunction } from "eproxe/dist/DynamicProxyHandler";
 
 interface Promisify extends Fn {
 	return: this['arg0'] extends (...args: any) => infer TRet ? (
@@ -16,8 +15,6 @@ interface Promisify extends Fn {
 	)
 }
 
-
-
 export default class AxiosProxyExtension extends ProxyExtension<ExtendLeaves<Promisify>> {
 	axiosInstance: Axios;
 
@@ -26,10 +23,22 @@ export default class AxiosProxyExtension extends ProxyExtension<ExtendLeaves<Pro
 		this.axiosInstance = axiosInstance;
 	}
 
+	argsToParams(args: any[]): any {
+		return { args: encodeJsonUriComponent(args) };
+	}
+
 	extendHandlers<THandlers extends DynamicProxyHandlersClass>(PrevHandlers: THandlers): DynamicProxyHandlersClass {
 		const axiosInstance = this.axiosInstance;
+		const ext = this;
 
 		return class AxiosHandlers extends PrevHandlers {
+			// configure prefix
+			// get(key: string, data: any, push: DynamicProxyPushFunction) {
+			// 	if (key === '') return '';
+
+			// 	return '';
+			// }
+
 			apply(args: any[], data: any, push: DynamicProxyPushFunction): any {
 				const { path } = data;
 				const head = path[path.length - 1];
@@ -38,10 +47,10 @@ export default class AxiosProxyExtension extends ProxyExtension<ExtendLeaves<Pro
 
 				const callApi = () => {
 					if (method === 'get') {
-						return axiosInstance.get(route, { params: { args: encodeJsonUriComponent(args) } })
+						return axiosInstance.get(route, { params: ext.argsToParams(args) })
 					}
 					if (method === 'delete') {
-						return axiosInstance.delete(route, { params: { args: encodeJsonUriComponent(args) } })
+						return axiosInstance.delete(route, { params: ext.argsToParams(args) })
 					}
 					if (method === 'post') {
 						return axiosInstance.post(route, { args })
