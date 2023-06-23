@@ -60,7 +60,7 @@ export default class AxiosProxyExtension extends ProxyExtension<ExtendLeaves<Pro
 					}
 				}
 
-				return callApi()?.then(res => res.data);
+				return callApi()?.then(res => res.data.result);
 			}
 		}
 	}

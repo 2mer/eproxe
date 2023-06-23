@@ -5,8 +5,14 @@ import axios from 'axios';
 import SwrProxyExtension from "eproxe-swr-extension";
 
 const procedures = ProcedureProxy<ServerApi>();
-const AxiosExtension = new AxiosProxyExtension(axios);
+const axiosInstance = axios.create({ baseURL: 'http://localhost:3000' })
+const AxiosExtension = new AxiosProxyExtension(axiosInstance);
 const SwrExtension = new SwrProxyExtension();
+
+// combine(
+// 	AxiosExtension,
+// 	SwrExtension
+// ).extend(procedures)
 
 const API = (
 	SwrExtension.extend(

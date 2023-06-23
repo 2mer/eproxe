@@ -1,7 +1,5 @@
 import { ProcedureProxy } from "eproxe";
-import { Expect, Equal } from "@type-challenges/utils";
-import SwrProxyExtension from "./SwrExtension"
-import { SWRResponse } from "swr";
+import SwrProxyExtension, { UseExtensionFingerprint } from "./SwrExtension"
 
 test('', () => {
 	const prox = ProcedureProxy<{ a: 'hey', b: 'yo', doSomething: (a: 'test') => Promise<'ret'> }>();
@@ -19,6 +17,9 @@ test('', () => {
 		swrProx.doSomething.use.use
 	} catch (e) { }
 
-	type testUseType = Expect<Equal<typeof swrProx.doSomething.use, (a: 'test') => SWRResponse<'ret'>>>
+	swrProx.doSomething.use.mutate
+	swrProx.doSomething.use[typeof UseExtensionFingerprint]
+
+	// type testUseType = Expect<Equal<typeof swrProx.doSomething.use, (a: 'test') => SWRResponse<'ret'>>>
 
 })

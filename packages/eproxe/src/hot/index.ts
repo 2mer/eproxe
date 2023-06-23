@@ -1,2 +1,3 @@
 export * from './Proxy';
-export * from './Tree';
+export * from './Object';
+export * from './Function';

@@ -1,5 +1,7 @@
-import { Call, Fn } from "hotscript";
+import { Call, ComposeLeft, Fn, Tuples } from "hotscript";
 import { DynamicProxyHandlers, DynamicProxyHandlersClass } from "./DynamicProxyHandlers";
+import { Type } from "./util/Type";
+import { GetSymbol } from "./hot";
 
 const INTERNALS = Symbol('INTERNALS');
 
@@ -39,6 +41,7 @@ export const DynamicProxy = ({ handlers = coreHandler, data = {} }: ProxyProps =
 	return proxy;
 }
 
+export const ExtenderTypeSymbol = Symbol('ExtenderType');
 
 export abstract class ProxyExtension<TProxyExtenderOrType> {
 
@@ -53,4 +56,21 @@ export abstract class ProxyExtension<TProxyExtenderOrType> {
 
 		return DynamicProxy({ data, handlers: newHandlers }) as TProxyExtenderOrType extends Fn ? Call<TProxyExtenderOrType, TProxy> : TProxyExtenderOrType & ProxyBase;
 	}
+
+	[ExtenderTypeSymbol] = Type<TProxyExtenderOrType>();
+}
+
+type CombinedExtender<TExtensions extends ProxyExtension<any>[]> = ComposeLeft<Call<Tuples.Map<GetSymbol<typeof ExtenderTypeSymbol>>, TExtensions>>
+
+export function combine<TExtensions extends ProxyExtension<any>[], TCombinedExtender extends CombinedExtender<TExtensions>>(...extensions: TExtensions): ProxyExtension<TCombinedExtender> {
+
+	return new class extends ProxyExtension<TCombinedExtender> {
+		extendHandlers<THandlers extends DynamicProxyHandlersClass>(PrevHandlers: THandlers): DynamicProxyHandlersClass {
+			throw new Error("Method not implemented.");
+		}
+
+		extend(proxy: any): any {
+			return extensions.reduce((prox, ext) => ext.extend(prox), proxy);
+		}
+	} as ProxyExtension<TCombinedExtender>
 }

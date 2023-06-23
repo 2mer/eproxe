@@ -10,7 +10,7 @@ function generateRoutesFromProcedure(router: Router, procedure: any, path: strin
 
 		const head = path[path.length - 1];
 		const method = getMethodFromName(head);
-		const route = path.join('/');
+		const route = '/' + path.join('/');
 		const middlewares = { before: [], after: [] }
 
 		const getHandlers = (argsGetter: (req: Request) => any[]) => [
@@ -18,7 +18,9 @@ function generateRoutesFromProcedure(router: Router, procedure: any, path: strin
 			async (req: Request, res: Response, next: NextFunction) => {
 				try {
 					const args = argsGetter(req);
-					return await procedure(...args);
+					const ret = await procedure(...args);
+
+					res.status(200).send({ result: ret });
 				} catch (err) {
 					next(err);
 				}
