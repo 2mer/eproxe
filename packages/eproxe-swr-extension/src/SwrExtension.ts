@@ -16,12 +16,15 @@ export interface UseExtension extends Fn {
 type Shift<T extends any[]> = T extends [first: any, ...rest: infer TRest] ? TRest : never;
 
 export interface MutateExtension extends Fn {
-	return: this['arg0'] & { mutate: (...args: Shift<Parameters<ScopedMutator<any>>>) => ReturnType<ScopedMutator<any>> }
+	return: this['arg0'] & {
+		mutate: (...args: Shift<Parameters<ScopedMutator<any>>>) => ReturnType<ScopedMutator<any>>,
+		key: string,
+	}
 }
 
 export const SwrKeySymbol = Symbol('SwrKey');
 
-type IsNotUseExtension = B.DoesNotExtend<{ [UseExtensionFingerprint]: true }>
+type IsNotUseExtension = ComposeLeft<[B.Extends<{ [UseExtensionFingerprint]: true }>, B.Not]>
 
 export default class SwrProxyExtension extends ProxyExtension<ComposeLeft<[ExtendLeaves<UseExtension>, ExtendDeep<MutateExtension, IsNotUseExtension>]>> {
 

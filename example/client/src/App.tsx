@@ -9,13 +9,6 @@ function App() {
 		50
 	);
 
-	API.testApi.getRandomNumber.use(1, 2);
-	API.testApi.getRandomNumber.mutate();
-	API.testApi.mutate();
-	API.testApi.getRandomNumber(1, 2);
-	// API.testApi.mutate();
-	// API.testApi.getRandomNumber
-
 	return (
 		<>
 			<div>

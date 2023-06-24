@@ -2,7 +2,7 @@ import { ComposeLeft, Fn } from "hotscript";
 import { ProcedureProxy } from "./ProcedureProxy"
 import { Expect, Equal } from "@type-challenges/utils";
 import { ProxyExtension, combine } from "./DynamicProxy";
-import { DynamicProxyHandlersClass } from "./DynamicProxyHandlers";
+import { DynamicProxyHandlersClass, DynamicProxyPushFunction } from "./DynamicProxyHandlers";
 
 
 describe('procedure proxy', () => {
@@ -29,19 +29,29 @@ describe('procedure proxy', () => {
 
 		class E1 extends ProxyExtension<EE1> {
 			extendHandlers<THandlers extends DynamicProxyHandlersClass>(PrevHandlers: THandlers): DynamicProxyHandlersClass {
-				throw new Error("Method not implemented.");
+				return class extends PrevHandlers {
+					get(key: string, data: any, push: DynamicProxyPushFunction) {
+						if (key === '1') return true;
+						return super.get(key, data, push);
+					}
+				}
 			}
 		}
 
 		class E2 extends ProxyExtension<EE2> {
 			extendHandlers<THandlers extends DynamicProxyHandlersClass>(PrevHandlers: THandlers): DynamicProxyHandlersClass {
-				throw new Error("Method not implemented.");
+				return class extends PrevHandlers {
+					get(key: string, data: any, push: DynamicProxyPushFunction) {
+						if (key === '2') return true;
+						return super.get(key, data, push);
+					}
+				}
 			}
 		}
 
 		class E3 extends ProxyExtension<ComposeLeft<[EE1, EE2]>> {
 			extendHandlers<THandlers extends DynamicProxyHandlersClass>(PrevHandlers: THandlers): DynamicProxyHandlersClass {
-				throw new Error("Method not implemented.");
+				return class extends PrevHandlers { }
 			}
 		}
 

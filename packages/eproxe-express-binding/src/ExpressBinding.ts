@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { decodeJsonUriComponent, getMethodFromName } from 'eproxe-http';
+import { MiddlewareSymbol } from './middleware';
 
 function generateRoutesFromProcedure(router: Router, procedure: any, path: string[] = []) {
 
@@ -11,10 +12,10 @@ function generateRoutesFromProcedure(router: Router, procedure: any, path: strin
 		const head = path[path.length - 1];
 		const method = getMethodFromName(head);
 		const route = '/' + path.join('/');
-		const middlewares = { before: [], after: [] }
+		const middlewares = procedure[MiddlewareSymbol]
 
 		const getHandlers = (argsGetter: (req: Request) => any[]) => [
-			...middlewares.before,
+			...(middlewares?.before ?? []),
 			async (req: Request, res: Response, next: NextFunction) => {
 				try {
 					const args = argsGetter(req);
@@ -25,7 +26,7 @@ function generateRoutesFromProcedure(router: Router, procedure: any, path: strin
 					next(err);
 				}
 			},
-			...middlewares.after
+			...(middlewares?.after ?? [])
 		]
 
 		const handleMethod = () => {
