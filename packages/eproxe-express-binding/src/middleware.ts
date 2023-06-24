@@ -3,7 +3,7 @@ import { RequestHandler } from "express";
 export const MiddlewareSymbol = Symbol('Middleware');
 
 const middlewareX = (key: string) => (...middlewares: RequestHandler[]) => {
-	return <THandler extends (...args: any) => any>(handler: THandler): THandler => {
+	return <TTarget>(handler: TTarget): TTarget => {
 		// @ts-ignore
 		const middlewareStore = handler[MiddlewareSymbol] ??= {}
 		const xMiddlewares = middlewareStore[key] ??= [];

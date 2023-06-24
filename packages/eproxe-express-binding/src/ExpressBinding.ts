@@ -1,8 +1,20 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { NextFunction, Request, RequestHandler, Response, Router } from 'express';
 import { decodeJsonUriComponent, getMethodFromName } from 'eproxe-http';
 import { MiddlewareSymbol } from './middleware';
 
-function generateRoutesFromProcedure(router: Router, procedure: any, path: string[] = []) {
+type RouteData = { path: string[], middleware: { before: RequestHandler[], after: RequestHandler[] } }
+
+function generateRoutesFromProcedure(router: Router, procedure: any, data: RouteData = { path: [], middleware: { before: [], after: [] } }) {
+
+	const { path, middleware } = data;
+
+	const pMiddlewares = procedure[MiddlewareSymbol];
+
+	const combinedMiddlewares = {
+		before: [...middleware.before, ...(pMiddlewares?.before ?? [])],
+		after: [...middleware.after, ...(pMiddlewares?.after ?? [])],
+	}
+
 
 	const pType = typeof procedure;
 	if (pType === 'string') return;
@@ -12,10 +24,9 @@ function generateRoutesFromProcedure(router: Router, procedure: any, path: strin
 		const head = path[path.length - 1];
 		const method = getMethodFromName(head);
 		const route = '/' + path.join('/');
-		const middlewares = procedure[MiddlewareSymbol]
 
 		const getHandlers = (argsGetter: (req: Request) => any[]) => [
-			...(middlewares?.before ?? []),
+			...combinedMiddlewares.before,
 			async (req: Request, res: Response, next: NextFunction) => {
 				try {
 					const args = argsGetter(req);
@@ -26,7 +37,7 @@ function generateRoutesFromProcedure(router: Router, procedure: any, path: strin
 					next(err);
 				}
 			},
-			...(middlewares?.after ?? [])
+			...combinedMiddlewares.after,
 		]
 
 		const handleMethod = () => {
@@ -44,7 +55,7 @@ function generateRoutesFromProcedure(router: Router, procedure: any, path: strin
 	const entries = Object.entries(procedure);
 
 	entries.forEach(([key, value]) => {
-		generateRoutesFromProcedure(router, value, [...path, key])
+		generateRoutesFromProcedure(router, value, { path: [...path, key], middleware: combinedMiddlewares })
 	})
 
 }
