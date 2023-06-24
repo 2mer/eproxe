@@ -1,3 +1,5 @@
+import JsonURL from "@jsonurl/jsonurl";
+
 export function getMethodFromName(name: string) {
 	if (name.startsWith('get')) return 'get';
 	if (name.startsWith('post')) return 'post';
@@ -7,10 +9,10 @@ export function getMethodFromName(name: string) {
 	return 'post';
 }
 
-export function encodeJsonUriComponent(obj: any) {
-	return encodeURIComponent(JSON.stringify(obj))
+export function encodeJsonUriComponent(obj: any, options?: Parameters<typeof JsonURL.stringify>[1]) {
+	return JsonURL.stringify(obj, options ?? { AQF: true });
 }
 
-export function decodeJsonUriComponent(str: string) {
-	return JSON.parse(decodeURIComponent(str));
+export function decodeJsonUriComponent(str: string, options?: Parameters<typeof JsonURL.parse>[1]) {
+	return JsonURL.parse(str, options ?? { AQF: true });
 }
