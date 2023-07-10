@@ -1,6 +1,6 @@
 {
 	"name": "eproxe-axios-extension",
-	"version": "2.0.0",
+	"version": "3.0.0",
 	"description": "",
 	"main": "dist/index.js",
 	"module": "dist/index.mjs",
@@ -14,8 +14,8 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"eproxe": "workspace:^2.0.0",
-		"eproxe-http": "workspace:^2.0.0"
+		"eproxe": "workspace:^3.0.0",
+		"eproxe-http": "workspace:^3.0.0"
 	},
 	"devDependencies": {
 		"@type-challenges/utils": "^0.1.1",
