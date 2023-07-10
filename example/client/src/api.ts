@@ -1,10 +1,10 @@
-import { ProcedureProxy } from "eproxe"
-import type { ServerApi } from '../../server/src/api';
+import eproxe from 'eproxe';
 import AxiosProxyExtension from "eproxe-axios-extension";
 import axios from 'axios';
 import SwrProxyExtension from "eproxe-swr-extension";
+import type { ServerApi } from '../../server/src/api';
 
-const procedures = ProcedureProxy<ServerApi>();
+const procedures = eproxe<ServerApi>();
 const axiosInstance = axios.create({ baseURL: 'http://localhost:3000' })
 const AxiosExtension = new AxiosProxyExtension(axiosInstance);
 const SwrExtension = new SwrProxyExtension();

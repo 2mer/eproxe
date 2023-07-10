@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import bodyParser from 'body-parser';
 
 import { toExpress } from "eproxe-express-binding";
 import api from "./api";
@@ -10,6 +11,8 @@ const port = 3000
 app.use(cors({
 	origin: 'http://localhost:5173'
 }))
+
+app.use(bodyParser.json())
 
 const routes = toExpress(api);
 
