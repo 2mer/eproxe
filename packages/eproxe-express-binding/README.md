@@ -1,7 +1,7 @@
 <p align="center">
 	<img src="../../images/eproxe.svg"/>
 </p>
-	<h2 align="center">+</h2>
+	<p align="center"><img src="../../images/plus.svg"/></p>
 <p align="center">
 	<img src="https://raw.githubusercontent.com/aleksandryackovlev/openapi-mock-express-middleware/master/assets/express-logo.png"/>
 </p>

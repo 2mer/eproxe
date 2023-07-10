@@ -1,7 +1,7 @@
 <p align="center">
 	<img src="../../images/eproxe.svg"/>
 </p>
-	<h2 align="center">+</h2>
+	<p align="center"><img src="../../images/plus.svg"/></p>
 <p align="center">
 	<img width="400px" src="https://camo.githubusercontent.com/cd6cabc4794eae6f99339744c2db817f43eda5de8611360dce9955d2606a9f43/68747470733a2f2f6173736574732e76657263656c2e636f6d2f696d6167652f75706c6f61642f76313537323238393631382f7377722f62616e6e65722e706e67"/>
 </p>
